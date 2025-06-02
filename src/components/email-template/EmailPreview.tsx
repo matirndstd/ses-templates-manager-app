@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ interface EmailPreviewProps {
 const EmailPreview: React.FC<EmailPreviewProps> = ({
   template,
   isVisible,
-  onToggleVisibility
+  onToggleVisibility,
 }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -27,9 +26,9 @@ const EmailPreview: React.FC<EmailPreviewProps> = ({
   if (!isVisible) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Button 
-          variant="outline" 
-          className="flex items-center gap-2" 
+        <Button
+          variant="outline"
+          className="flex items-center gap-2"
           onClick={onToggleVisibility}
         >
           <Eye className="h-4 w-4" />
@@ -54,7 +53,9 @@ const EmailPreview: React.FC<EmailPreviewProps> = ({
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`}
+            />
             <span className="sr-only">Refresh</span>
           </Button>
           <Button
@@ -71,13 +72,13 @@ const EmailPreview: React.FC<EmailPreviewProps> = ({
 
       <Card className="border bg-card overflow-hidden">
         <div className="bg-muted px-4 py-2 border-b text-sm font-medium">
-          <div>Subject: {template.SubjectPart || 'No subject'}</div>
+          <div>Subject: {template.Subject || 'No subject'}</div>
         </div>
         <CardContent className="p-0">
           <div className="bg-white border-b border-muted h-[400px] overflow-auto">
-            {template.HtmlPart ? (
+            {template.Html ? (
               <iframe
-                srcDoc={template.HtmlPart}
+                srcDoc={template.Html}
                 title="Email Preview"
                 className="w-full h-full"
                 sandbox="allow-same-origin"
@@ -88,10 +89,12 @@ const EmailPreview: React.FC<EmailPreviewProps> = ({
               </div>
             )}
           </div>
-          {template.TextPart && (
+          {template.Text && (
             <div className="p-4 text-sm font-mono whitespace-pre-wrap text-muted-foreground border-t">
-              <div className="text-xs uppercase font-medium mb-2">Text Version:</div>
-              {template.TextPart}
+              <div className="text-xs uppercase font-medium mb-2">
+                Text Version:
+              </div>
+              {template.Text}
             </div>
           )}
         </CardContent>

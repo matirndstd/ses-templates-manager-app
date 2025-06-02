@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
+import { ListEmailTemplatesCommand, SESv2Client } from '@aws-sdk/client-sesv2';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogDescription,
   DialogFooter,
@@ -13,7 +13,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { SESClient, ListTemplatesCommand } from '@aws-sdk/client-ses';
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+  SelectItem,
+} from './ui/select';
+import { AWS_REGIONS } from '@/lib/constants';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -25,7 +32,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
   const [credentials, setCredentials] = useState({
     accessKeyId: '',
     secretAccessKey: '',
-    region: 'us-east-1',
+    region: '',
   });
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -41,23 +48,23 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
     }
 
     setIsLoggingIn(true);
-    
+
     try {
       // Verify credentials by making a test API call
-      const client = new SESClient({
+      const client = new SESv2Client({
         region: credentials.region,
         credentials: {
           accessKeyId: credentials.accessKeyId,
           secretAccessKey: credentials.secretAccessKey,
-        }
+        },
       });
-      
+
       // Try to list templates to verify credentials work
-      await client.send(new ListTemplatesCommand({}));
-      
+      await client.send(new ListEmailTemplatesCommand({}));
+
       // Store in localStorage (not secure for real AWS credentials!)
       localStorage.setItem('awsCredentials', JSON.stringify(credentials));
-      
+
       toast.success('Successfully logged in');
       onOpenChange(false);
       navigate('/');
@@ -73,23 +80,35 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Login to SES Template Manager</DialogTitle>
+          <DialogTitle>Login to Amazon SES Manager</DialogTitle>
           <DialogDescription>
             Enter your AWS credentials to manage SES templates.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="region">AWS Region</Label>
-            <Input
-              id="region"
+            <Select
               name="region"
               value={credentials.region}
-              onChange={handleInputChange}
-            />
+              onValueChange={(value) => {
+                setCredentials((prev) => ({ ...prev, region: value }));
+              }}
+            >
+              <SelectTrigger aria-label="region">
+                <SelectValue placeholder="Select a region" />
+              </SelectTrigger>
+              <SelectContent>
+                {AWS_REGIONS.map((region) => (
+                  <SelectItem key={region} value={region}>
+                    {region}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          
+
           <div className="grid gap-2">
             <Label htmlFor="accessKeyId">Access Key ID</Label>
             <Input
@@ -99,7 +118,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
               onChange={handleInputChange}
             />
           </div>
-          
+
           <div className="grid gap-2">
             <Label htmlFor="secretAccessKey">Secret Access Key</Label>
             <Input
@@ -111,13 +130,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
             />
           </div>
         </div>
-        
+
         <DialogFooter>
-          <Button 
-            type="submit" 
-            onClick={handleLogin} 
-            disabled={isLoggingIn}
-          >
+          <Button type="submit" onClick={handleLogin} disabled={isLoggingIn}>
             {isLoggingIn ? 'Logging in...' : 'Login'}
           </Button>
         </DialogFooter>

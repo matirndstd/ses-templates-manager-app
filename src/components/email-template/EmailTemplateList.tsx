@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, FileText, PlusCircle, LogIn } from 'lucide-react';
@@ -19,15 +18,15 @@ const EmailTemplateList: React.FC = () => {
   useEffect(() => {
     // Check if user is logged in
     const credentials = localStorage.getItem('awsCredentials');
-    setIsLoggedIn(!!credentials);
-  }, []);
+    setIsLoggedIn(Boolean(credentials));
+  }, [navigate]);
 
   const loadTemplates = async () => {
     if (!isLoggedIn) {
       setIsLoading(false);
       return;
     }
-    
+
     try {
       setIsLoading(true);
       const data = await listTemplates(searchTerm);
@@ -42,6 +41,7 @@ const EmailTemplateList: React.FC = () => {
 
   useEffect(() => {
     loadTemplates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, isLoggedIn]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +59,8 @@ const EmailTemplateList: React.FC = () => {
         <FileText className="h-12 w-12 text-muted-foreground mb-4" />
         <h3 className="text-lg font-medium mb-2">Login Required</h3>
         <p className="text-muted-foreground mb-4 max-w-md">
-          You need to log in with your AWS credentials to view and manage SES email templates.
+          You need to log in with your AWS credentials to view and manage SES
+          email templates.
         </p>
         <Button onClick={() => navigate('/login')}>
           <LogIn className="mr-2 h-4 w-4" />
@@ -88,14 +89,15 @@ const EmailTemplateList: React.FC = () => {
           className="pl-10"
           value={searchTerm}
           onChange={handleSearchChange}
+          name="search"
         />
       </div>
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className="border rounded-lg p-6 h-[200px] animate-pulse bg-muted"
             />
           ))}
@@ -103,9 +105,9 @@ const EmailTemplateList: React.FC = () => {
       ) : templates.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((template) => (
-            <EmailTemplateCard 
-              key={template.id} 
-              template={template} 
+            <EmailTemplateCard
+              key={template.id}
+              template={template}
               onDeleted={onTemplateDeleted}
             />
           ))}
@@ -115,7 +117,9 @@ const EmailTemplateList: React.FC = () => {
           <FileText className="h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium mb-2">No templates found</h3>
           <p className="text-muted-foreground mb-4">
-            {searchTerm ? "No templates match your search criteria" : "Create your first email template to get started"}
+            {searchTerm
+              ? 'No templates match your search criteria'
+              : 'Create your first email template to get started'}
           </p>
           <Link to="/templates/new">
             <Button>

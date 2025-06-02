@@ -25,14 +25,14 @@ const HtmlEditor: React.FC<HtmlEditorProps> = ({ value, onChange, error }) => {
     return highlight(code, languages[language], language);
   };
 
-  const isDarkMode = document.documentElement.classList.contains('dark');
-
   return (
     <div className="space-y-2 container__editor">
-      <Label htmlFor="HtmlPart">
-        HTML Content
-      </Label>
-      <div className={`border rounded-md overflow-hidden ${error ? "border-destructive" : "border-input"}`}>
+      <Label htmlFor="Html">HTML Content</Label>
+      <div
+        className={`border rounded-md overflow-hidden ${
+          error ? 'border-destructive' : 'border-input'
+        }`}
+      >
         <Editor
           value={value || ''}
           onValueChange={onChange}
@@ -43,17 +43,15 @@ const HtmlEditor: React.FC<HtmlEditorProps> = ({ value, onChange, error }) => {
             fontSize: 12,
             fontVariantLigatures: 'common-ligatures',
             minHeight: '300px',
-            backgroundColor: isDarkMode ? '#1d1f21' : '#fafafa', 
-            color: isDarkMode ? '#cccccc' : 'inherit',
             borderRadius: '3px',
-            outline: 0
+            outline: 0,
           }}
-          className="w-full"
+          className="w-full bg-background text-foreground"
+          textareaId="Html"
+          placeholder="Your HTML content here"
         />
       </div>
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 };

@@ -1,35 +1,37 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import z from 'zod/v4';
-import { EmailTemplate } from '@/types';
+import { ContactList } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
-import { createTemplate, getTemplateById, updateTemplate } from '@/lib/aws-ses';
-import { CreateTemplateSchema } from '@/schemas';
+import {
+  createContactList,
+  getContactListByName,
+  updateContactList,
+} from '@/lib/aws-ses';
+import { CreateContactListSchema } from '@/schemas';
 
-interface UseTemplateFormProps {
-  id?: string;
+interface UseContactListFormProps {
+  name?: string;
 }
 
-export const useTemplateForm = ({ id }: UseTemplateFormProps) => {
-  const isEditing = Boolean(id);
+export const useContactListForm = ({ name }: UseContactListFormProps) => {
+  const isEditing = Boolean(name);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [tab, setTab] = useState<string>('html');
 
-  const [formData, setFormData] = useState<Partial<EmailTemplate>>({
-    TemplateName: '',
-    Subject: '',
-    Html: '',
-    Text: '',
-    dynamicFields: [],
+  const [formData, setFormData] = useState<ContactList>({
+    ContactListName: '',
+    Description: '',
+    Topics: [],
+    Tags: [],
   });
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     const credentials = localStorage.getItem('awsCredentials');
@@ -46,40 +48,39 @@ export const useTemplateForm = ({ id }: UseTemplateFormProps) => {
       return;
     }
 
-    if (isEditing && id) {
-      loadTemplate(id);
+    if (isEditing && name) {
+      loadContactList(name);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, isEditing, navigate]);
+  }, [name, isEditing, navigate]);
 
-  const loadTemplate = async (templateId: string) => {
+  const loadContactList = async (contactListName: string) => {
     try {
       setIsLoading(true);
-      const template = await getTemplateById(templateId);
-      if (!template) {
+      const contactList = await getContactListByName(contactListName);
+      if (!contactList) {
         toast({
           title: 'Error',
-          description: 'Template not found',
+          description: `Contact list "${contactListName}" not found`,
           variant: 'destructive',
         });
-        navigate('/');
+        navigate('/contact-lists');
         return;
       }
 
       setFormData({
-        TemplateName: template.TemplateName,
-        Subject: template.Subject,
-        Html: template.Html,
-        Text: template.Text,
-        dynamicFields: template.dynamicFields,
+        ContactListName: contactList.ContactListName,
+        Description: contactList.Description,
+        Topics: contactList.Topics,
+        Tags: contactList.Tags,
       });
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to load template',
+        description: `Failed to load "${contactListName}" contact list`,
         variant: 'destructive',
       });
-      navigate('/');
+      navigate('/contact-lists');
     } finally {
       setIsLoading(false);
     }
@@ -96,29 +97,13 @@ export const useTemplateForm = ({ id }: UseTemplateFormProps) => {
     }
   };
 
-  const handleHtmlChange = (code: string) => {
-    setFormData((prev) => ({ ...prev, Html: code }));
-
-    if (errors.Html) {
-      setErrors((prev) => ({ ...prev, Html: '' }));
-    }
-  };
-
   const validate = () => {
-    const result = CreateTemplateSchema.safeParse(formData);
+    const result = CreateContactListSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors = z.treeifyError(result.error).properties;
-      if (fieldErrors.Html?.errors[0] && tab !== 'html') {
-        setTab('html');
-      } else if (fieldErrors.Text?.errors[0] && tab !== 'text') {
-        setTab('text');
-      }
-
       setErrors({
-        TemplateName: fieldErrors.TemplateName?.errors[0],
-        Subject: fieldErrors.Subject?.errors[0],
-        Html: fieldErrors.Html?.errors[0],
-        Text: fieldErrors.Text?.errors[0],
+        ContactListName: fieldErrors.ContactListName?.errors[0],
+        Description: fieldErrors.Description?.errors[0],
       });
       return false;
     }
@@ -129,6 +114,7 @@ export const useTemplateForm = ({ id }: UseTemplateFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // if (!validateForm()) {
     if (!validate()) {
       toast({
         title: 'Validation Error',
@@ -140,30 +126,26 @@ export const useTemplateForm = ({ id }: UseTemplateFormProps) => {
 
     try {
       setIsSaving(true);
-
-      if (isEditing && id) {
-        await updateTemplate(id, formData);
+      console.log(formData);
+      if (isEditing && name) {
+        await updateContactList(name, formData);
         toast({
           title: 'Success',
-          description: `Template "${formData.TemplateName}" has been updated`,
+          description: `Contact list "${formData.ContactListName}" has been updated`,
         });
       } else {
-        await createTemplate(
-          formData as Required<
-            Omit<EmailTemplate, 'id' | 'createdAt' | 'updatedAt'>
-          >
-        );
+        await createContactList(formData);
         toast({
           title: 'Success',
-          description: `Template "${formData.TemplateName}" has been created`,
+          description: `Contact list "${formData.ContactListName}" has been created`,
         });
       }
 
-      navigate('/templates');
+      navigate('/contact-lists');
     } catch (error) {
       toast({
         title: 'Error',
-        description: (error as Error).message || 'Failed to save template',
+        description: (error as Error).message || 'Failed to save contact list',
         variant: 'destructive',
       });
     } finally {
@@ -175,10 +157,6 @@ export const useTemplateForm = ({ id }: UseTemplateFormProps) => {
     navigate('/');
   };
 
-  const togglePreview = () => {
-    setShowPreview(!showPreview);
-  };
-
   return {
     isEditing,
     isLoading,
@@ -187,15 +165,10 @@ export const useTemplateForm = ({ id }: UseTemplateFormProps) => {
     formData,
     errors,
     showDeleteDialog,
-    showPreview,
-    tab,
     setShowDeleteDialog,
-    togglePreview,
     handleChange,
-    handleHtmlChange,
     handleSubmit,
     handleDelete,
     navigate,
-    setTab,
   };
 };

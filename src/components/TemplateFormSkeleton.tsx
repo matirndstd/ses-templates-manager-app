@@ -1,20 +1,23 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
 interface TemplateFormSkeletonProps {
+  title: string;
   onBack: () => void;
 }
 
-const TemplateFormSkeleton: React.FC<TemplateFormSkeletonProps> = ({ onBack }) => {
+const TemplateFormSkeleton: React.FC<TemplateFormSkeletonProps> = ({
+  title,
+  onBack,
+}) => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1>Loading template...</h1>
+        <h1>{title}</h1>
       </div>
       <div className="space-y-4">
         <div className="h-10 bg-muted rounded animate-pulse" />

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import {
@@ -27,7 +26,7 @@ const DeleteTemplateDialog: React.FC<DeleteTemplateDialogProps> = ({
   templateId,
   templateName,
   onClose,
-  onDeleted
+  onDeleted,
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
@@ -37,16 +36,16 @@ const DeleteTemplateDialog: React.FC<DeleteTemplateDialogProps> = ({
       setIsDeleting(true);
       await deleteTemplate(templateId);
       toast({
-        title: "Success",
-        description: `Template "${templateName}" has been deleted.`
+        title: 'Success',
+        description: `Template "${templateName}" has been deleted.`,
       });
       onDeleted();
       onClose();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to delete the template. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to delete the template. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsDeleting(false);
@@ -62,8 +61,8 @@ const DeleteTemplateDialog: React.FC<DeleteTemplateDialogProps> = ({
             Delete Template
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the template <strong>"{templateName}"</strong>? This
-            action cannot be undone.
+            Are you sure you want to delete the template{' '}
+            <strong>"{templateName}"</strong>? This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -76,7 +75,7 @@ const DeleteTemplateDialog: React.FC<DeleteTemplateDialogProps> = ({
             disabled={isDeleting}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isDeleting ? "Deleting..." : "Delete"}
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

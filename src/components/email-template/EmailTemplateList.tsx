@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, FileText, PlusCircle, LogIn } from 'lucide-react';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { EmailTemplate } from '@/types';
 import { listTemplates } from '@/lib/aws-ses';
 import EmailTemplateCard from './EmailTemplateCard';
-import { toast } from 'sonner';
 
 const EmailTemplateList: React.FC = () => {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
@@ -75,7 +75,7 @@ const EmailTemplateList: React.FC = () => {
       <div className="flex items-center justify-between">
         <h1>Email Templates</h1>
         <Link to="/templates/new">
-          <Button>
+          <Button className="gap-0">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Template
           </Button>
@@ -94,7 +94,10 @@ const EmailTemplateList: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          role="status"
+        >
           {[1, 2, 3].map((i) => (
             <div
               key={i}

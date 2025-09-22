@@ -139,8 +139,8 @@ const TopicForm: React.FC<TopicFormProps> = ({ topics, handleChange }) => {
             });
           }}
         >
-          <SelectTrigger aria-label="region">
-            <SelectValue placeholder="Select a region" />
+          <SelectTrigger aria-label="subscriber-type">
+            <SelectValue placeholder="Select a subscriber type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem key={1} value="OPT_IN">

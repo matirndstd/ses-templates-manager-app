@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Trash2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -55,7 +54,7 @@ const ContactListForm: React.FC = () => {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1>{isEditing ? 'Edit Contact List' : 'Create Contact List'}</h1>
+          <h1>{isEditing ? 'Edit' : 'Create'} Contact List</h1>
         </div>
 
         <div className="flex items-center gap-2">
@@ -63,7 +62,7 @@ const ContactListForm: React.FC = () => {
             <>
               <Button
                 variant="outline"
-                className="text-destructive"
+                className="text-destructive gap-0"
                 onClick={() => setShowDeleteDialog(true)}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -150,7 +149,8 @@ const ContactListForm: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              className="mr-2"
+              size="lg"
+              className="mr-2 px-6"
               onClick={() => navigate('/contact-lists')}
               disabled={isSaving}
             >
@@ -161,7 +161,7 @@ const ContactListForm: React.FC = () => {
                 'Saving...'
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
+                  <Save className="h-4 w-4" />
                   Save Contact List
                 </>
               )}
@@ -171,14 +171,12 @@ const ContactListForm: React.FC = () => {
       </div>
 
       {isEditing && (
-        <>
-          <DeleteContactListDialog
-            isOpen={showDeleteDialog}
-            contactListName={formData.ContactListName}
-            onClose={() => setShowDeleteDialog(false)}
-            onDeleted={handleDelete}
-          />
-        </>
+        <DeleteContactListDialog
+          isOpen={showDeleteDialog}
+          contactListName={formData.ContactListName}
+          onClose={() => setShowDeleteDialog(false)}
+          onDeleted={handleDelete}
+        />
       )}
     </div>
   );

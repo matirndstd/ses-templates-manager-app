@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Search, FileText, PlusCircle, LogIn } from 'lucide-react';
@@ -75,7 +75,7 @@ const ListContactList: React.FC = () => {
       <div className="flex items-center justify-between">
         <h1>Contact Lists</h1>
         <Link to="/contact-lists/new">
-          <Button>
+          <Button className="gap-0">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Contact List
           </Button>
@@ -102,7 +102,7 @@ const ListContactList: React.FC = () => {
             />
           ))}
         </div>
-      ) : contactLists.length > 0 ? (
+      ) : contactLists && contactLists.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {contactLists.map((contact) => (
             <ContactListItem

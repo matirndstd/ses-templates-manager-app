@@ -1,21 +1,30 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import tailwindcss from '@tailwindcss/vite'
+import { coverageConfigDefaults, defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react-swc';
+import path from 'path';
+import tailwindcss from '@tailwindcss/vite';
 
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   server: {
-    host: "::",
+    host: '::',
     port: 8080,
   },
-  plugins: [
-    react(),
-    tailwindcss(),
-  ].filter(Boolean),
+  plugins: [react(), tailwindcss()].filter(Boolean),
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.ts',
+    testTimeout: 15000,
+    coverage: {
+      exclude: [
+        '**/src/components/ui/**',
+        '**/tailwind.config.ts',
+        ...coverageConfigDefaults.exclude,
+      ],
     },
   },
 }));

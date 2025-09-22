@@ -55,6 +55,7 @@ const TagForm: React.FC<TagFormProps> = ({ tags, handleChange }) => {
     } as any);
     setTempTag({ Key: '', Value: '' });
   };
+
   return (
     <div className="flex flex-col gap-2 mt-2">
       <div className="flex flex-row gap-2 mt-2 w-2/4">

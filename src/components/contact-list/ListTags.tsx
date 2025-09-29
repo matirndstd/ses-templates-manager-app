@@ -1,4 +1,5 @@
 import { ContactList } from '@/types';
+import { Button } from '@/components/ui/button';
 
 interface ListTagsProps {
   tags: ContactList['Tags'];
@@ -18,9 +19,10 @@ const ListTags: React.FC<ListTagsProps> = ({ tags, handleChange }) => {
           <span className="font-medium">{tag.Key}</span>
           <span>:</span>
           <span>{tag.Value || "''"}</span>
-          <button
+          <Button
             type="button"
-            className="text-red-500 hover:text-red-700 ml-1 cursor-pointer"
+            variant="destructive"
+            className="text-red-500 hover:text-red-700 px-0 py-0 bg-transparent hover:bg-transparent"
             onClick={() => {
               handleChange({
                 target: {
@@ -32,7 +34,7 @@ const ListTags: React.FC<ListTagsProps> = ({ tags, handleChange }) => {
             }}
           >
             &times;
-          </button>
+          </Button>
         </div>
       ))}
     </div>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ListEmailTemplatesCommand, SESv2Client } from '@aws-sdk/client-sesv2';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -46,7 +46,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
       toast.error('Please enter your AWS credentials');
       return;
     }
-
     setIsLoggingIn(true);
 
     try {
@@ -96,7 +95,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
                 setCredentials((prev) => ({ ...prev, region: value }));
               }}
             >
-              <SelectTrigger aria-label="region">
+              <SelectTrigger
+                id="region"
+                aria-label="region"
+                data-testid="select-region"
+              >
                 <SelectValue placeholder="Select a region" />
               </SelectTrigger>
               <SelectContent>

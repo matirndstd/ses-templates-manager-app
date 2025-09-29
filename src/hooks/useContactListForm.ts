@@ -114,7 +114,6 @@ export const useContactListForm = ({ name }: UseContactListFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // if (!validateForm()) {
     if (!validate()) {
       toast({
         title: 'Validation Error',
@@ -126,7 +125,6 @@ export const useContactListForm = ({ name }: UseContactListFormProps) => {
 
     try {
       setIsSaving(true);
-      console.log(formData);
       if (isEditing && name) {
         await updateContactList(name, formData);
         toast({

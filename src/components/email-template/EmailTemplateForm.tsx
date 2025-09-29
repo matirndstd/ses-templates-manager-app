@@ -1,18 +1,18 @@
-import React from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Trash2, SendHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import DeleteTemplateDialog from './DeleteTemplateDialog';
-import SendTestEmailDialog from './SendTestEmailDialog';
-import EmailPreview from './EmailPreview';
-import TemplateDetailsForm from './TemplateDetailsForm';
-import TemplateFormSkeleton from '../TemplateFormSkeleton';
+import DeleteTemplateDialog from '@/components/email-template/DeleteTemplateDialog';
+import SendTestEmailDialog from '@/components/email-template/SendTestEmailDialog';
+import EmailPreview from '@/components/email-template/EmailPreview';
+import TemplateDetailsForm from '@/components/email-template/TemplateDetailsForm';
+import TemplateFormSkeleton from '@/components/TemplateFormSkeleton';
 import { useTemplateForm } from '@/hooks/useTemplateForm';
 import { parseContent } from '@/lib/utils';
 
 const EmailTemplateForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [showSendEmailDialog, setShowSendEmailDialog] = React.useState(false);
+  const [showSendEmailDialog, setShowSendEmailDialog] = useState(false);
 
   const {
     isEditing,
@@ -71,6 +71,7 @@ const EmailTemplateForm: React.FC = () => {
           {isEditing && (
             <>
               <Button
+                className="gap-0"
                 variant="secondary"
                 onClick={() => setShowSendEmailDialog(true)}
                 disabled={isSaving}
@@ -81,7 +82,7 @@ const EmailTemplateForm: React.FC = () => {
 
               <Button
                 variant="outline"
-                className="text-destructive"
+                className="text-destructive gap-0"
                 onClick={() => setShowDeleteDialog(true)}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -107,13 +108,15 @@ const EmailTemplateForm: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              className="mr-2"
+              size="lg"
+              className="mr-2 px-6"
               onClick={() => navigate('/templates')}
               disabled={isSaving}
             >
               Cancel
             </Button>
             <Button
+              className="gap-0"
               type="submit"
               disabled={
                 isSaving ||

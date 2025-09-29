@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Edit, MoreVertical, Trash2 } from 'lucide-react';
 import {
@@ -27,7 +27,7 @@ const ContactListItem: React.FC<ContactListItemProps> = ({
   contactList,
   onDeleted,
 }) => {
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -56,14 +56,14 @@ const ContactListItem: React.FC<ContactListItemProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem className="cursor-pointer" asChild>
                   <Link to={`/contact-lists/${contactList.ContactListName}`}>
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:text-destructive cursor-pointer"
                   onClick={() => setShowDeleteDialog(true)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />

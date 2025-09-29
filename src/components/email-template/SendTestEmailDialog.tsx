@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { SendHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -164,7 +164,12 @@ const SendTestEmailDialog: React.FC<SendTestEmailDialogProps> = ({
           <Button variant="outline" onClick={onClose} disabled={isSending}>
             Cancel
           </Button>
-          <Button onClick={handleSend} disabled={isSending}>
+          <Button
+            className="gap-0"
+            size="sm"
+            onClick={handleSend}
+            disabled={isSending}
+          >
             {isSending ? (
               'Sending...'
             ) : (

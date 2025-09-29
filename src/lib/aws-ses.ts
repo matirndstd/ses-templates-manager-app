@@ -26,14 +26,12 @@ import { toast } from 'sonner';
 
 // Initialize SES V2 client with credentials from localStorage
 const getSESClientV2 = (): SESv2Client | null => {
-  const storedCredentials = localStorage.getItem('awsCredentials');
-
-  if (!storedCredentials) {
-    toast.error('AWS credentials not found. Please login first.');
-    return null;
-  }
-
   try {
+    const storedCredentials = localStorage.getItem('awsCredentials');
+    if (!storedCredentials) {
+      throw new Error('AWS credentials not found in storage.');
+    }
+
     const { region, accessKeyId, secretAccessKey } =
       JSON.parse(storedCredentials);
 
@@ -47,7 +45,7 @@ const getSESClientV2 = (): SESv2Client | null => {
   } catch (error) {
     console.error('Error initializing SES V2 client:', error);
     toast.error('Failed to initialize AWS V2 client. Please login again.');
-    return null;
+    throw error;
   }
 };
 
@@ -96,10 +94,8 @@ const convertToAppTemplate = (
 export const listTemplates = async (
   searchTerm?: string
 ): Promise<EmailTemplate[]> => {
-  const client = getSESClientV2();
-  if (!client) return [];
-
   try {
+    const client = getSESClientV2();
     const command = new ListEmailTemplatesCommand({ PageSize: 100 });
     const response = await client.send(command);
 
@@ -137,16 +133,14 @@ export const listTemplates = async (
 export const getTemplateById = async (
   id: string
 ): Promise<EmailTemplate | undefined> => {
-  const client = getSESClientV2();
-  if (!client) return undefined;
-
   try {
+    const client = getSESClientV2();
     const command = new GetEmailTemplateCommand({
       TemplateName: id,
     });
 
     const response = await client.send(command);
-    if (!response.TemplateName) return undefined;
+    if (!response.TemplateName || !response.TemplateContent) return null;
 
     return convertToAppTemplate(response, id);
   } catch (error) {
@@ -160,10 +154,8 @@ export const getTemplateById = async (
 export const createTemplate = async (
   data: CreateEmailTemplateInput
 ): Promise<EmailTemplate> => {
-  const client = getSESClientV2();
-  if (!client) throw new Error('No SES client available');
-
   try {
+    const client = getSESClientV2();
     const command = new CreateEmailTemplateCommand({
       TemplateName: data.TemplateName,
       TemplateContent: {
@@ -194,10 +186,8 @@ export const updateTemplate = async (
   id: string,
   data: UpdateEmailTemplateInput
 ): Promise<EmailTemplate> => {
-  const client = getSESClientV2();
-  if (!client) throw new Error('No SES client available');
-
   try {
+    const client = getSESClientV2();
     // Get existing template to merge with updates
     const existingTemplate = await getTemplateById(id);
     if (!existingTemplate) {
@@ -256,10 +246,8 @@ export const updateTemplate = async (
 
 // Delete a template
 export const deleteTemplate = async (id: string): Promise<void> => {
-  const client = getSESClientV2();
-  if (!client) throw new Error('No SES client available');
-
   try {
+    const client = getSESClientV2();
     const command = new DeleteEmailTemplateCommand({
       TemplateName: id,
     });
@@ -280,19 +268,8 @@ export const sendTemplatedEmail = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   templateData: Record<string, any> = {}
 ): Promise<string> => {
-  const client = getSESClientV2();
-  if (!client) throw new Error('No SES client available');
-
   try {
-    /* const command = new SendTemplatedEmailCommand({
-      Source: source,
-      Destination: {
-        ToAddresses: to,
-      },
-      Template: templateName,
-      TemplateData: JSON.stringify(templateData),
-    }); */
-
+    const client = getSESClientV2();
     const command = new SendEmailCommand({
       FromEmailAddress: fromEmail,
       Destination: {
@@ -318,10 +295,8 @@ export const sendTemplatedEmail = async (
 export const getContactListByName = async (
   name: string
 ): Promise<ContactList | undefined> => {
-  const client = getSESClientV2();
-  if (!client) return undefined;
-
   try {
+    const client = getSESClientV2();
     const command = new GetContactListCommand({
       ContactListName: name,
     });
@@ -337,10 +312,8 @@ export const getContactListByName = async (
 export const listContactList = async (
   searchTerm?: string
 ): Promise<ContactList[]> => {
-  const client = getSESClientV2();
-  if (!client) return [];
-
   try {
+    const client = getSESClientV2();
     const command = new ListContactListsCommand();
     const response = await client.send(command);
 
@@ -362,35 +335,7 @@ export const listContactList = async (
       })
     );
 
-    const addContactList = [
-      {
-        ContactListName: 'sms-subscribers-list',
-        Description: 'SMS subscribers list',
-        LastUpdatedTimestamp: new Date(),
-      },
-      {
-        ContactListName: 'email-subscribers-list',
-        Description: 'Email subscribers list',
-        LastUpdatedTimestamp: new Date(),
-      },
-      {
-        ContactListName: 'one-signal-subscribers-list',
-        Description: 'One Signal subscribers list',
-        LastUpdatedTimestamp: new Date(),
-      },
-      {
-        ContactListName: 'facebook-subscribers-list',
-        Description: 'Facebook subscribers list',
-        LastUpdatedTimestamp: new Date(),
-      },
-      {
-        ContactListName: 'app-subscribers-list',
-        Description: 'App subscribers list',
-        LastUpdatedTimestamp: new Date(),
-      },
-    ];
-
-    return [...contactLists, ...addContactList];
+    return contactLists;
   } catch (error) {
     console.error('Error listing contact list:', error);
     toast.error('Failed to list contact list from AWS SES');
@@ -402,10 +347,8 @@ export const listContactList = async (
 export const createContactList = async (
   data: CreateContactListInput
 ): Promise<CreateContactListResponse> => {
-  const client = getSESClientV2();
-  if (!client) throw new Error('No SES client available');
-
   try {
+    const client = getSESClientV2();
     const command = new CreateContactListCommand({
       ContactListName: data.ContactListName,
       Topics: data.Topics,
@@ -425,10 +368,8 @@ export const updateContactList = async (
   name: string,
   data: UpdateContactListInput
 ): Promise<ContactList> => {
-  const client = getSESClientV2();
-  if (!client) throw new Error('No SES client available');
-
   try {
+    const client = getSESClientV2();
     // Get existing contact list to merge with updates
     const contactList = await getContactListByName(name);
     if (!contactList) {
@@ -478,10 +419,8 @@ export const updateContactList = async (
 
 // Delete a contact list
 export const deleteContactList = async (name: string): Promise<void> => {
-  const client = getSESClientV2();
-  if (!client) throw new Error('No SES client available');
-
   try {
+    const client = getSESClientV2();
     const command = new DeleteContactListCommand({
       ContactListName: name,
     });

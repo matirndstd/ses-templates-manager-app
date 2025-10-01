@@ -4,7 +4,7 @@ SES Template Manager is a web application for managing email templates and conta
 
 ## Screenshot
 
-![Features Preview](./public/screenshot.PNG)
+![Features Preview](./public/screenshot.png)
 
 ## Features
 

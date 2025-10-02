@@ -20,7 +20,6 @@ export default defineConfig(() => ({
     setupFiles: './src/setupTests.ts',
     testTimeout: 15000,
     coverage: {
-      reporter: ['lcov'],
       exclude: [
         '**/src/components/ui/**',
         '**/tailwind.config.ts',

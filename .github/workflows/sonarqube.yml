@@ -34,7 +34,7 @@ jobs:
       
    # Fail the job if the Quality Gate is not passed
     - name: SonarQube Quality Gate Check
-    - uses: sonarsource/sonarqube-quality-gate-action@master
+      uses: sonarsource/sonarqube-quality-gate-action@master
       timeout-minutes: 5
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

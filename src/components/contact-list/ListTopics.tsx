@@ -11,9 +11,9 @@ interface ListTopicsProps {
 const ListTopics: React.FC<ListTopicsProps> = ({ topics, handleChange }) => {
   return (
     <div className="mt-4 space-y-2">
-      {topics.map((topic, index) => (
+      {topics.map((topic) => (
         <div
-          key={index}
+          key={topic.TopicName}
           className="border p-3 rounded space-y-1 bg-muted text-sm"
         >
           <div>
@@ -36,7 +36,7 @@ const ListTopics: React.FC<ListTopicsProps> = ({ topics, handleChange }) => {
               handleChange({
                 target: {
                   name: 'Topics',
-                  value: topics.filter((_, i) => i !== index),
+                  value: topics.filter((t) => t.TopicName !== topic.TopicName),
                 },
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
               } as any);

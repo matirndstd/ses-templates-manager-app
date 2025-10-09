@@ -52,6 +52,53 @@ const ListContactList: React.FC = () => {
     loadContactList();
   };
 
+  const renderLoadingState = () => (
+    <output className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="border rounded-lg p-6 h-[200px] animate-pulse bg-muted"
+        />
+      ))}
+    </output>
+  );
+
+  const renderTemplateGrid = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {contactLists.map((contact) => (
+        <ContactListItem
+          contactList={contact}
+          key={contact.ContactListName}
+          onDeleted={onListContactDeleted}
+        />
+      ))}
+    </div>
+  );
+
+  const renderEmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+      <h3 className="text-lg font-medium mb-2">No contact list found</h3>
+      <p className="text-muted-foreground mb-4">
+        {searchTerm
+          ? 'No contact list match your search criteria'
+          : 'Create your first email template to get started'}
+      </p>
+      <Link to="/contact-lists/new">
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Create Contact List
+        </Button>
+      </Link>
+    </div>
+  );
+
+  const renderTemplateContent = () => {
+    if (isLoading) return renderLoadingState();
+    if (contactLists && contactLists.length > 0) return renderTemplateGrid();
+    return renderEmptyState();
+  };
+
   // If not logged in, show login prompt
   if (!isLoggedIn) {
     return (
@@ -93,42 +140,7 @@ const ListContactList: React.FC = () => {
         />
       </div>
 
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="border rounded-lg p-6 h-[200px] animate-pulse bg-muted"
-            />
-          ))}
-        </div>
-      ) : contactLists && contactLists.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {contactLists.map((contact) => (
-            <ContactListItem
-              contactList={contact}
-              key={contact.ContactListName}
-              onDeleted={onListContactDeleted}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">No contact list found</h3>
-          <p className="text-muted-foreground mb-4">
-            {searchTerm
-              ? 'No contact list match your search criteria'
-              : 'Create your first email template to get started'}
-          </p>
-          <Link to="/contact-lists/new">
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Create Contact List
-            </Button>
-          </Link>
-        </div>
-      )}
+      {renderTemplateContent()}
     </div>
   );
 };

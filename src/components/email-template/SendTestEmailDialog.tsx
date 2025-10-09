@@ -49,7 +49,7 @@ const SendTestEmailDialog: React.FC<SendTestEmailDialogProps> = ({
     }
 
     // Check if email format is valid (simple validation)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@\.]+\.[^\s@]+$/;
     if (!emailRegex.test(fromEmail)) {
       toast.error('Please enter a valid sender email address');
       return;

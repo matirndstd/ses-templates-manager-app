@@ -52,6 +52,53 @@ const EmailTemplateList: React.FC = () => {
     loadTemplates();
   };
 
+  const renderLoadingState = () => (
+    <output className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="border rounded-lg p-6 h-[200px] animate-pulse bg-muted"
+        />
+      ))}
+    </output>
+  );
+
+  const renderTemplateGrid = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {templates.map((template) => (
+        <EmailTemplateCard
+          key={template.id}
+          template={template}
+          onDeleted={onTemplateDeleted}
+        />
+      ))}
+    </div>
+  );
+
+  const renderEmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+      <h3 className="text-lg font-medium mb-2">No templates found</h3>
+      <p className="text-muted-foreground mb-4">
+        {searchTerm
+          ? 'No templates match your search criteria'
+          : 'Create your first email template to get started'}
+      </p>
+      <Link to="/templates/new">
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Create Template
+        </Button>
+      </Link>
+    </div>
+  );
+
+  const renderTemplateContent = () => {
+    if (isLoading) return renderLoadingState();
+    if (templates && templates.length > 0) return renderTemplateGrid();
+    return renderEmptyState();
+  };
+
   // If not logged in, show login prompt
   if (!isLoggedIn) {
     return (
@@ -93,45 +140,7 @@ const EmailTemplateList: React.FC = () => {
         />
       </div>
 
-      {isLoading ? (
-        <div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-          role="status"
-        >
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="border rounded-lg p-6 h-[200px] animate-pulse bg-muted"
-            />
-          ))}
-        </div>
-      ) : templates.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {templates.map((template) => (
-            <EmailTemplateCard
-              key={template.id}
-              template={template}
-              onDeleted={onTemplateDeleted}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">No templates found</h3>
-          <p className="text-muted-foreground mb-4">
-            {searchTerm
-              ? 'No templates match your search criteria'
-              : 'Create your first email template to get started'}
-          </p>
-          <Link to="/templates/new">
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Create Template
-            </Button>
-          </Link>
-        </div>
-      )}
+      {renderTemplateContent()}
     </div>
   );
 };

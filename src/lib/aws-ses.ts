@@ -50,15 +50,17 @@ const getSESClientV2 = (): SESv2Client | null => {
 };
 
 // This function is used to extract dynamic fields from the template content
-const getDynamicFields = (contentStr: string) => {
-  let dynamicFieldsArr = [];
-  if (contentStr) {
-    const matchRegex = contentStr.match(/{{\s*[\w.]+\s*}}/g); // match on any mustache templates
-    if (matchRegex) {
-      dynamicFieldsArr = matchRegex.map(function (x) {
-        return x.match(/[\w.]+/)[0];
-      });
-    }
+const getDynamicFields = (contentStr: string): string[] => {
+  if (!contentStr) return [];
+
+  const dynamicFieldsArr = [];
+  const regex = /{{\s*([\w.]+)\s*}}/g;
+  let match;
+
+  // Use exec() in a loop to find all matches in the string.
+  // The loop continues as long as exec() finds a match.
+  while ((match = regex.exec(contentStr)) !== null) {
+    dynamicFieldsArr.push(match[1]);
   }
 
   return dynamicFieldsArr;
@@ -113,15 +115,12 @@ export const listTemplates = async (
     // For each template metadata, fetch the full template
     const templates = await Promise.all(
       filteredTemplates.map(async (metadata) => {
-        const templateName = metadata.TemplateName as string;
-        const templateData = await getTemplateById(templateName);
-        return templateData as EmailTemplate;
+        if (!metadata.TemplateName) return undefined;
+        return await getTemplateById(metadata.TemplateName);
       })
     );
 
-    return templates.filter(
-      (template) => template !== undefined
-    ) as EmailTemplate[];
+    return templates.filter((template) => template);
   } catch (error) {
     console.error('Error listing templates:', error);
     toast.error('Failed to list templates from AWS SES');

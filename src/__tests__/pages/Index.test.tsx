@@ -18,6 +18,6 @@ describe('Index', () => {
 
     const getStartedLink = screen.getByRole('link', { name: /get started/i });
     expect(getStartedLink).toBeInTheDocument();
-    expect(getStartedLink).toHaveAttribute('href', '#');
+    expect(getStartedLink).toHaveAttribute('href', '/templates');
   });
 });

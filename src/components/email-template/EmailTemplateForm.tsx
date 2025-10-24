@@ -98,9 +98,10 @@ const EmailTemplateForm: React.FC = () => {
           <TemplateDetailsForm
             formData={parsedFormData}
             errors={errors}
+            tab={tab}
+            isEditing={isEditing}
             handleChange={handleChange}
             handleHtmlChange={handleHtmlChange}
-            tab={tab}
             setTab={setTab}
           />
 

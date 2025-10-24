@@ -11,6 +11,7 @@ interface TemplateDetailsFormProps {
   formData: Partial<EmailTemplate>;
   errors: { [key: string]: string };
   tab: string;
+  isEditing: boolean;
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
@@ -22,6 +23,7 @@ const TemplateDetailsForm: React.FC<TemplateDetailsFormProps> = ({
   formData,
   errors,
   tab,
+  isEditing,
   handleChange,
   handleHtmlChange,
   setTab,
@@ -53,6 +55,7 @@ const TemplateDetailsForm: React.FC<TemplateDetailsFormProps> = ({
                 value={formData.TemplateName}
                 onChange={handleChange}
                 className={errors.TemplateName ? 'border-destructive' : ''}
+                disabled={isEditing}
               />
               {errors.TemplateName && (
                 <p className="text-sm text-destructive">

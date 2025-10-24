@@ -63,6 +63,7 @@ describe('TemplateDetailsForm', () => {
         formData={mockFormData}
         errors={mockErrors}
         tab="html"
+        isEditing={false}
         handleChange={handleChange}
         handleHtmlChange={handleHtmlChange}
         setTab={setTab}
@@ -98,6 +99,7 @@ describe('TemplateDetailsForm', () => {
           Text: '',
         }}
         tab="html"
+        isEditing={false}
         handleChange={handleChange}
         handleHtmlChange={handleHtmlChange}
         setTab={setTab}
@@ -113,6 +115,7 @@ describe('TemplateDetailsForm', () => {
         formData={mockFormData}
         errors={mockErrors}
         tab="text"
+        isEditing={false}
         handleChange={handleChange}
         handleHtmlChange={handleHtmlChange}
         setTab={setTab}
@@ -129,6 +132,7 @@ describe('TemplateDetailsForm', () => {
         formData={mockFormData}
         errors={mockErrors}
         tab="html"
+        isEditing={false}
         handleChange={handleChange}
         handleHtmlChange={handleHtmlChange}
         setTab={setTab}
@@ -146,6 +150,7 @@ describe('TemplateDetailsForm', () => {
         formData={mockFormData}
         errors={mockErrors}
         tab="text"
+        isEditing={false}
         handleChange={handleChange}
         handleHtmlChange={handleHtmlChange}
         setTab={setTab}
@@ -163,5 +168,23 @@ describe('TemplateDetailsForm', () => {
     fireEvent.click(generateBtn);
 
     expect(handleChange).toHaveBeenCalled();
+  });
+
+  it('TemplateName input should be disabled when it is editing', () => {
+    render(
+      <TemplateDetailsForm
+        formData={mockFormData}
+        errors={mockErrors}
+        tab="text"
+        isEditing={true}
+        handleChange={handleChange}
+        handleHtmlChange={handleHtmlChange}
+        setTab={setTab}
+      />
+    );
+
+    const templateNameInput = screen.getByLabelText(/Template Name/i);
+    expect(templateNameInput).toHaveValue('Welcome Email');
+    expect(templateNameInput).toBeDisabled();
   });
 });

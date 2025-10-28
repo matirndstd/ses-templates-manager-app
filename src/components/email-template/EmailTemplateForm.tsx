@@ -151,7 +151,7 @@ const EmailTemplateForm: React.FC = () => {
         <>
           <DeleteTemplateDialog
             isOpen={showDeleteDialog}
-            templateId={id!}
+            templateId={id}
             templateName={parsedFormData.TemplateName || ''}
             onClose={() => setShowDeleteDialog(false)}
             onDeleted={handleDelete}
@@ -160,7 +160,7 @@ const EmailTemplateForm: React.FC = () => {
           <SendTestEmailDialog
             isOpen={showSendEmailDialog}
             onClose={() => setShowSendEmailDialog(false)}
-            templateName={id!}
+            templateName={id}
             dynamicFields={parsedFormData.dynamicFields}
           />
         </>

@@ -1,4 +1,5 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+/* stylelint-disable-next-line at-rule-no-unknown */
 @config "../tailwind.config.ts";
 
 @layer base {
@@ -90,15 +91,20 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-medium tracking-tight;
   }
-  
+
   h1 {
     @apply text-3xl md:text-4xl;
   }
-  
+
   h2 {
     @apply text-2xl md:text-3xl;
   }
@@ -106,8 +112,8 @@
 
 /* Dark mode prism syntax highlighting */
 .dark pre,
-.dark code[class*="language-"],
-.dark pre[class*="language-"] {
+.dark code[class*='language-'],
+.dark pre[class*='language-'] {
   color: #f8f8f2;
   background-color: hsl(222.2 84% 4.9%);
   text-shadow: none;
@@ -125,7 +131,7 @@
 }
 
 .dark .token.namespace {
-  opacity: .7;
+  opacity: 0.7;
 }
 
 .dark .token.property,

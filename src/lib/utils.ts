@@ -9,7 +9,7 @@ export function parseContent(content: string) {
   if (!content) return '';
   // Parse unicode escaped characters
   let retVal = content.replace(/"/g, '\\"').replace(/(?:\r\n|\r|\n)/g, '\\n');
-  retVal = retVal.replace(/\\u([\d\w]{4})/gi, function (match, grp) {
+  retVal = retVal.replace(/\\u([0-9a-f]{4})/gi, function (match, grp) {
     return String.fromCharCode(parseInt(grp, 16));
   });
   retVal = retVal.replace(/\\n/g, '\n');

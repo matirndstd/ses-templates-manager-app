@@ -59,16 +59,14 @@ const ContactListForm: React.FC = () => {
 
         <div className="flex items-center gap-2">
           {isEditing && (
-            <>
-              <Button
-                variant="outline"
-                className="text-destructive gap-0"
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
-            </>
+            <Button
+              variant="outline"
+              className="text-destructive gap-0"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
           )}
         </div>
       </div>

@@ -11,9 +11,9 @@ interface ListTagsProps {
 const ListTags: React.FC<ListTagsProps> = ({ tags, handleChange }) => {
   return (
     <div className="flex flex-wrap gap-2">
-      {tags.map((tag, index) => (
+      {tags.map((tag) => (
         <div
-          key={index}
+          key={tag.Key}
           className="flex items-center gap-2 px-3 py-1 border rounded-full"
         >
           <span className="font-medium">{tag.Key}</span>
@@ -27,7 +27,7 @@ const ListTags: React.FC<ListTagsProps> = ({ tags, handleChange }) => {
               handleChange({
                 target: {
                   name: 'Tags',
-                  value: tags.filter((_, i) => i !== index),
+                  value: tags.filter((t) => t.Key !== tag.Key),
                 },
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
               } as any);

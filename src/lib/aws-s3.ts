@@ -123,7 +123,8 @@ const convertToAppTemplate = (
 
 // Get the template file key (filename) from template name
 const getTemplateKey = (templateName: string): string => {
-  return `${templateName}.json`;
+  const folderPrefix = getCredentials()?.s3FolderPrefix || '';
+  return `${folderPrefix}${templateName}.json`;
 };
 
 // List all templates with optional filtering
@@ -158,7 +159,7 @@ export const listTemplates = async (
     const templates = await Promise.all(
       filteredFiles.map(async (obj) => {
         if (!obj.Key) return undefined;
-        const templateName = obj.Key.replace('.json', '');
+        const templateName = obj.Key.replace('.json', '').replace(folderPrefix, '');
         return await getTemplateById(templateName);
       })
     );

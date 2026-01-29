@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Save, Trash2, SendHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DeleteTemplateDialog from '@/components/email-template/DeleteTemplateDialog';
@@ -11,7 +11,8 @@ import { useTemplateForm } from '@/hooks/useTemplateForm';
 import { parseContent } from '@/lib/utils';
 
 const EmailTemplateForm: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get('id') || undefined;
   const [showSendEmailDialog, setShowSendEmailDialog] = useState(false);
 
   const {

@@ -6,7 +6,7 @@ import { useTemplateForm } from '@/hooks/useTemplateForm';
 // Mock the dependencies
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', () => ({
-  useParams: () => ({ id: 'template-id' }),
+  useSearchParams: () => [new URLSearchParams('id=template-id')],
   useNavigate: () => mockNavigate,
 }));
 

@@ -64,7 +64,7 @@ const EmailTemplateCard: React.FC<EmailTemplateCardProps> = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem className="cursor-pointer" asChild>
-                  <Link to={`/templates/${parsedTemplate.id}`}>
+                  <Link to={`/templates/edit?id=${parsedTemplate.id}`}>
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
                   </Link>
@@ -80,7 +80,7 @@ const EmailTemplateCard: React.FC<EmailTemplateCardProps> = ({
             </DropdownMenu>
           </div>
         </CardHeader>
-        <Link to={`/templates/${parsedTemplate.id}`}>
+        <Link to={`/templates/edit?id=${parsedTemplate.id}`}>
           <CardContent className="pb-2">
             <p
               className="text-sm text-muted-foreground mb-2 truncate"

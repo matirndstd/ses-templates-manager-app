@@ -67,6 +67,6 @@ describe('EmailTemplateCard', () => {
     await user.click(screen.getByRole('button', { name: /open menu/i }));
     const editLink = screen.getByText('Edit');
 
-    expect(editLink).toHaveAttribute('href', '/templates/template-123');
+    expect(editLink).toHaveAttribute('href', '/templates/edit?id=template-123');
   });
 });

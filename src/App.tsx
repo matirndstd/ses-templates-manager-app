@@ -26,7 +26,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/templates" element={<EmailTemplateList />} />
             <Route path="/templates/new" element={<EmailTemplateForm />} />
-            <Route path="/templates/:id" element={<EmailTemplateForm />} />
+            <Route path="/templates/edit" element={<EmailTemplateForm />} />
             <Route path="/contact-lists" element={<ListContactList />} />
             <Route path="/contact-lists/new" element={<ContactListForm />} />
             <Route path="/contact-lists/:name" element={<ContactListForm />} />

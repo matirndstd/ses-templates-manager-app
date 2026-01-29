@@ -71,8 +71,8 @@ describe('App', () => {
     expect(screen.getByText('Email Template List')).toBeInTheDocument();
   });
 
-  it('should render the template form for a parameterized path like "/templates/:id"', () => {
-    renderAtRoute('/templates/some-template-id-123');
+  it('should render the template form for the "/templates/edit" path with query params', () => {
+    renderAtRoute('/templates/edit?id=some-template-id-123');
     expect(screen.getByText('Main Layout')).toBeInTheDocument();
     expect(screen.getByText('Email Template Form')).toBeInTheDocument();
   });

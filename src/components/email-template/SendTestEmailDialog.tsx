@@ -12,7 +12,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { sendTemplatedEmail } from '@/lib/aws-ses';
+import { sendEmail } from '@/lib/aws-ses';
+import { getTemplateById } from '@/lib/aws-s3';
 
 interface SendTestEmailDialogProps {
   isOpen: boolean;
@@ -66,11 +67,32 @@ const SendTestEmailDialog: React.FC<SendTestEmailDialogProps> = ({
     setIsSending(true);
 
     try {
-      const messageId = await sendTemplatedEmail(
-        templateName,
+      // Get template from S3
+      const template = await getTemplateById(templateName);
+      if (!template) {
+        toast.error('Template not found');
+        return;
+      }
+
+      // Replace dynamic fields in template content
+      let subject = template.Subject;
+      let htmlContent = template.Html;
+      let textContent = template.Text;
+
+      // Replace {{fieldName}} with actual values
+      Object.entries(listDynamicFields).forEach(([key, value]) => {
+        const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+        subject = subject.replace(regex, value as string);
+        htmlContent = htmlContent.replace(regex, value as string);
+        textContent = textContent.replace(regex, value as string);
+      });
+
+      const messageId = await sendEmail(
         fromEmail,
         recipients,
-        listDynamicFields
+        subject,
+        htmlContent,
+        textContent
       );
 
       toast.success(`Email sent successfully! Message ID: ${messageId}`);

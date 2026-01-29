@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import EmailTemplateList from '@/components/email-template/EmailTemplateList';
 import { toast } from 'sonner';
-import { listTemplates } from '@/lib/aws-ses';
+import { listTemplates } from '@/lib/aws-s3';
 
-vi.mock('@/lib/aws-ses', () => ({
+vi.mock('@/lib/aws-s3', () => ({
   listTemplates: vi.fn(),
 }));
 
@@ -135,7 +135,7 @@ describe('EmailTemplateList', () => {
 
     await waitFor(() => {
       expect(toastErrorMock).toHaveBeenCalledWith(
-        'Failed to load templates from AWS SES'
+        'Failed to load templates from S3 bucket'
       );
     });
   });

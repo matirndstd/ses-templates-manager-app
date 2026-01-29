@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { EmailTemplate } from '@/types';
-import { listTemplates } from '@/lib/aws-ses';
+import { listTemplates } from '@/lib/aws-s3';
 import EmailTemplateCard from './EmailTemplateCard';
 
 const EmailTemplateList: React.FC = () => {
@@ -33,7 +33,7 @@ const EmailTemplateList: React.FC = () => {
       setTemplates(data);
     } catch (error) {
       console.error('Failed to load templates:', error);
-      toast.error('Failed to load templates from AWS SES');
+      toast.error('Failed to load templates from S3 bucket');
     } finally {
       setIsLoading(false);
     }

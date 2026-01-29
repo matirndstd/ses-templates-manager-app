@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import DeleteTemplateDialog from '@/components/email-template/DeleteTemplateDialog';
-import { deleteTemplate } from '@/lib/aws-ses';
+import { deleteTemplate } from '@/lib/aws-s3';
 
 // Mock toast
 const mockToast = vi.fn();
@@ -12,7 +12,7 @@ vi.mock('@/components/ui/use-toast', () => ({
 }));
 
 // Mock deleteTemplate
-vi.mock('@/lib/aws-ses', () => ({
+vi.mock('@/lib/aws-s3', () => ({
   deleteTemplate: vi.fn(),
 }));
 

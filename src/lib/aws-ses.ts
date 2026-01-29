@@ -6,18 +6,9 @@ import {
   GetContactListCommand,
   UpdateContactListCommand,
   DeleteContactListCommand,
-  ListEmailTemplatesCommand,
-  GetEmailTemplateCommand,
-  Template,
-  CreateEmailTemplateCommand,
-  UpdateEmailTemplateCommand,
-  DeleteEmailTemplateCommand,
   SendEmailCommand,
 } from '@aws-sdk/client-sesv2';
 import {
-  EmailTemplate,
-  CreateEmailTemplateInput,
-  UpdateEmailTemplateInput,
   ContactList,
   CreateContactListInput,
   UpdateContactListInput,
@@ -49,223 +40,13 @@ const getSESClientV2 = (): SESv2Client | null => {
   }
 };
 
-// This function is used to extract dynamic fields from the template content
-const getDynamicFields = (contentStr: string): string[] => {
-  if (!contentStr) return [];
-
-  const dynamicFieldsArr = [];
-  const regex = /{{\s*([\w.]+)\s*}}/g;
-  let match;
-
-  // Use exec() in a loop to find all matches in the string.
-  // The loop continues as long as exec() finds a match.
-  while ((match = regex.exec(contentStr)) !== null) {
-    dynamicFieldsArr.push(match[1]);
-  }
-
-  return dynamicFieldsArr;
-};
-
-// Convert AWS SES template to our app's template format
-const convertToAppTemplate = (
-  template: Template,
-  id: string
-): EmailTemplate => {
-  // get dynamic fields from the template
-  const { Subject, Text, Html } = template.TemplateContent;
-
-  let dynamicFieldsArr = [];
-  dynamicFieldsArr = [...dynamicFieldsArr, ...getDynamicFields(Subject)]; // Subject
-  dynamicFieldsArr = [...dynamicFieldsArr, ...getDynamicFields(Text)]; // Text
-  dynamicFieldsArr = [...dynamicFieldsArr, ...getDynamicFields(Html)]; // Html
-  dynamicFieldsArr = Array.from(new Set(dynamicFieldsArr)); // removes any dupes
-
-  return {
-    id,
-    TemplateName: template.TemplateName || '',
-    Subject: Subject || '',
-    Html: Html || '',
-    Text: Text || '',
-    dynamicFields: dynamicFieldsArr || [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-};
-
-// List all templates with optional filtering
-export const listTemplates = async (
-  searchTerm?: string
-): Promise<EmailTemplate[]> => {
-  try {
-    const client = getSESClientV2();
-    const command = new ListEmailTemplatesCommand({ PageSize: 100 });
-    const response = await client.send(command);
-
-    const templateMetadata = response.TemplatesMetadata || [];
-
-    // Filter templates if search term is provided
-    const filteredTemplates = searchTerm
-      ? templateMetadata.filter((template) =>
-          template.TemplateName?.toLowerCase().includes(
-            searchTerm.toLowerCase()
-          )
-        )
-      : templateMetadata;
-
-    // For each template metadata, fetch the full template
-    const templates = await Promise.all(
-      filteredTemplates.map(async (metadata) => {
-        if (!metadata.TemplateName) return undefined;
-        return await getTemplateById(metadata.TemplateName);
-      })
-    );
-
-    return templates.filter((template) => template);
-  } catch (error) {
-    console.error('Error listing templates:', error);
-    toast.error('Failed to list templates from AWS SES');
-    throw error;
-  }
-};
-
-// Get a single template by ID (TemplateName)
-export const getTemplateById = async (
-  id: string
-): Promise<EmailTemplate | undefined> => {
-  try {
-    const client = getSESClientV2();
-    const command = new GetEmailTemplateCommand({
-      TemplateName: id,
-    });
-
-    const response = await client.send(command);
-    if (!response.TemplateName || !response.TemplateContent) return null;
-
-    return convertToAppTemplate(response, id);
-  } catch (error) {
-    console.error(`Error getting template ${id}:`, error);
-    toast.error(`Failed to get template "${id}" from AWS SES`);
-    throw error;
-  }
-};
-
-// Create a new template
-export const createTemplate = async (
-  data: CreateEmailTemplateInput
-): Promise<EmailTemplate> => {
-  try {
-    const client = getSESClientV2();
-    const command = new CreateEmailTemplateCommand({
-      TemplateName: data.TemplateName,
-      TemplateContent: {
-        Subject: data.Subject,
-        Html: data.Html,
-        Text: data.Text,
-      },
-    });
-
-    await client.send(command);
-
-    // Return the newly created template
-    return {
-      id: data.TemplateName,
-      ...data,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-  } catch (error) {
-    console.error('Error creating template:', error);
-    toast.error('Failed to create template in AWS SES');
-    throw error;
-  }
-};
-
-// Update an existing template
-export const updateTemplate = async (
-  id: string,
-  data: UpdateEmailTemplateInput
-): Promise<EmailTemplate> => {
-  try {
-    const client = getSESClientV2();
-    // Get existing template to merge with updates
-    const existingTemplate = await getTemplateById(id);
-    if (!existingTemplate) {
-      throw new Error('Template not found');
-    }
-
-    // If template name is changing, we need to create a new one and delete the old one
-    if (data.TemplateName && data.TemplateName !== id) {
-      // Create new template with new name
-      await createTemplate({
-        TemplateName: data.TemplateName,
-        Subject: data.Subject || existingTemplate.Subject,
-        Html: data.Html || existingTemplate.Html,
-        Text: data.Text || existingTemplate.Text,
-      });
-
-      // Delete old template
-      await deleteTemplate(id);
-
-      // Return the updated template
-      return {
-        id: data.TemplateName,
-        TemplateName: data.TemplateName,
-        Subject: data.Subject || existingTemplate.Subject,
-        Html: data.Html || existingTemplate.Html,
-        Text: data.Text || existingTemplate.Text,
-        createdAt: existingTemplate.createdAt,
-        updatedAt: new Date(),
-      };
-    }
-
-    // Otherwise, update the existing template
-    const command = new UpdateEmailTemplateCommand({
-      TemplateName: id,
-      TemplateContent: {
-        Subject: data.Subject || existingTemplate.Subject,
-        Html: data.Html || existingTemplate.Html,
-        Text: data.Text || existingTemplate.Text,
-      },
-    });
-
-    await client.send(command);
-
-    // Return the updated template
-    return {
-      ...existingTemplate,
-      ...data,
-      updatedAt: new Date(),
-    };
-  } catch (error) {
-    console.error(`Error updating template ${id}:`, error);
-    toast.error(`Failed to update template "${id}" in AWS SES`);
-    throw error;
-  }
-};
-
-// Delete a template
-export const deleteTemplate = async (id: string): Promise<void> => {
-  try {
-    const client = getSESClientV2();
-    const command = new DeleteEmailTemplateCommand({
-      TemplateName: id,
-    });
-
-    await client.send(command);
-  } catch (error) {
-    console.error(`Error deleting template ${id}:`, error);
-    toast.error(`Failed to delete template "${id}" from AWS SES`);
-    throw error;
-  }
-};
-
-// Send an email using a template
-export const sendTemplatedEmail = async (
-  templateName: string,
+// Send an email using raw content (no longer uses SES templates)
+export const sendEmail = async (
   fromEmail: string,
   recipients: string[],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  templateData: Record<string, any> = {}
+  subject: string,
+  htmlContent: string,
+  textContent: string
 ): Promise<string> => {
   try {
     const client = getSESClientV2();
@@ -275,9 +56,21 @@ export const sendTemplatedEmail = async (
         ToAddresses: recipients,
       },
       Content: {
-        Template: {
-          TemplateName: templateName,
-          TemplateData: JSON.stringify(templateData),
+        Simple: {
+          Subject: {
+            Data: subject,
+            Charset: 'UTF-8',
+          },
+          Body: {
+            Html: {
+              Data: htmlContent,
+              Charset: 'UTF-8',
+            },
+            Text: {
+              Data: textContent,
+              Charset: 'UTF-8',
+            },
+          },
         },
       },
     });
@@ -285,7 +78,7 @@ export const sendTemplatedEmail = async (
     const response = await client.send(command);
     return response.MessageId || '';
   } catch (error) {
-    console.error('Error sending templated email:', error);
+    console.error('Error sending email:', error);
     throw error;
   }
 };
@@ -408,9 +201,9 @@ export const updateContactList = async (
       ...data,
     };
   } catch (error) {
-    console.error(`Error updating template ${data.ContactListName}:`, error);
+    console.error(`Error updating contact list ${data.ContactListName}:`, error);
     toast.error(
-      `Failed to update template "${data.ContactListName}" in AWS SES`
+      `Failed to update contact list "${data.ContactListName}" in AWS SES`
     );
     throw error;
   }

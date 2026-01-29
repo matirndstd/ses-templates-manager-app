@@ -3,7 +3,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SendTestEmailDialog from '@/components/email-template/SendTestEmailDialog';
 import { toast } from 'sonner';
-import { sendTemplatedEmail } from '@/lib/aws-ses';
+import { sendEmail } from '@/lib/aws-ses';
+import { getTemplateById } from '@/lib/aws-s3';
 
 vi.mock('sonner', () => ({
   toast: {
@@ -13,12 +14,15 @@ vi.mock('sonner', () => ({
 }));
 
 vi.mock('@/lib/aws-ses', () => ({
-  sendTemplatedEmail: vi.fn(),
+  sendEmail: vi.fn(),
 }));
 
-const mockedSendTemplatedEmail = sendTemplatedEmail as unknown as ReturnType<
-  typeof vi.fn
->;
+vi.mock('@/lib/aws-s3', () => ({
+  getTemplateById: vi.fn(),
+}));
+
+const mockedSendEmail = sendEmail as unknown as ReturnType<typeof vi.fn>;
+const mockedGetTemplateById = getTemplateById as unknown as ReturnType<typeof vi.fn>;
 
 describe('SendTestEmailDialog', () => {
   const defaultProps = {
@@ -28,8 +32,20 @@ describe('SendTestEmailDialog', () => {
     dynamicFields: ['name', 'product'],
   };
 
+  const mockTemplate = {
+    id: 'WelcomeTemplate',
+    TemplateName: 'WelcomeTemplate',
+    Subject: 'Welcome {{name}}!',
+    Html: '<p>Hello {{name}}, welcome to {{product}}!</p>',
+    Text: 'Hello {{name}}, welcome to {{product}}!',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default mock for getTemplateById
+    mockedGetTemplateById.mockResolvedValue(mockTemplate);
   });
 
   it('should render the dialog with all fields when open', () => {
@@ -105,7 +121,7 @@ describe('SendTestEmailDialog', () => {
     expect(toast.error).toHaveBeenCalledWith(
       'Please enter a sender email address'
     );
-    expect(mockedSendTemplatedEmail).not.toHaveBeenCalled();
+    expect(mockedSendEmail).not.toHaveBeenCalled();
   });
 
   it('should show an error toast if "To" emails are empty on send', async () => {
@@ -121,7 +137,7 @@ describe('SendTestEmailDialog', () => {
     expect(toast.error).toHaveBeenCalledWith(
       'Please enter at least one recipient email address'
     );
-    expect(mockedSendTemplatedEmail).not.toHaveBeenCalled();
+    expect(mockedSendEmail).not.toHaveBeenCalled();
   });
 
   it('should show an error toast for an invalid "From" email format', async () => {
@@ -141,7 +157,7 @@ describe('SendTestEmailDialog', () => {
     expect(toast.error).toHaveBeenCalledWith(
       'Please enter a valid sender email address'
     );
-    expect(mockedSendTemplatedEmail).not.toHaveBeenCalled();
+    expect(mockedSendEmail).not.toHaveBeenCalled();
   });
 
   it('should show an error toast for invalid "To" email formats', async () => {
@@ -161,12 +177,12 @@ describe('SendTestEmailDialog', () => {
     expect(toast.error).toHaveBeenCalledWith(
       'Invalid email format: invalid, another-bad-one'
     );
-    expect(mockedSendTemplatedEmail).not.toHaveBeenCalled();
+    expect(mockedSendEmail).not.toHaveBeenCalled();
   });
 
-  it('should call sendTemplatedEmail with correct arguments and show success on valid submission', async () => {
+  it('should call sendEmail with correct arguments and show success on valid submission', async () => {
     const user = userEvent.setup();
-    mockedSendTemplatedEmail.mockResolvedValue('test-message-id-123');
+    mockedSendEmail.mockResolvedValue('test-message-id-123');
     render(<SendTestEmailDialog {...defaultProps} />);
 
     // Fill the form with valid data
@@ -184,11 +200,13 @@ describe('SendTestEmailDialog', () => {
     const sendButton = screen.getByRole('button', { name: /Send Email/ });
     await user.click(sendButton);
     await waitFor(() => {
-      expect(mockedSendTemplatedEmail).toHaveBeenCalledWith(
-        'WelcomeTemplate',
+      expect(mockedGetTemplateById).toHaveBeenCalledWith('WelcomeTemplate');
+      expect(mockedSendEmail).toHaveBeenCalledWith(
         'sender@test.com',
         ['recipient1@test.com', 'recipient2@test.com'],
-        { name: 'Alice', product: 'Super Widget' }
+        'Welcome Alice!',
+        '<p>Hello Alice, welcome to Super Widget!</p>',
+        'Hello Alice, welcome to Super Widget!'
       );
     });
 
@@ -201,7 +219,7 @@ describe('SendTestEmailDialog', () => {
   it('should handle a generic API error gracefully', async () => {
     const user = userEvent.setup();
     const errorMessage = 'Something went wrong';
-    mockedSendTemplatedEmail.mockRejectedValue(new Error(errorMessage));
+    mockedSendEmail.mockRejectedValue(new Error(errorMessage));
     render(<SendTestEmailDialog {...defaultProps} />);
 
     // Fill form
@@ -236,7 +254,7 @@ describe('SendTestEmailDialog', () => {
       name: 'MessageRejected',
       message: 'Email address is not verified.',
     };
-    mockedSendTemplatedEmail.mockRejectedValue(awsError);
+    mockedSendEmail.mockRejectedValue(awsError);
     render(<SendTestEmailDialog {...defaultProps} />);
 
     // Fill form
@@ -261,5 +279,30 @@ describe('SendTestEmailDialog', () => {
 
     expect(defaultProps.onClose).not.toHaveBeenCalled();
     expect(sendButton).not.toBeDisabled();
+  });
+
+  it('should show error if template is not found', async () => {
+    const user = userEvent.setup();
+    mockedGetTemplateById.mockResolvedValue(undefined);
+    render(<SendTestEmailDialog {...defaultProps} />);
+
+    // Fill form
+    await user.type(
+      screen.getByLabelText('From (Sender Email)'),
+      'sender@test.com'
+    );
+    await user.type(
+      screen.getByLabelText('To (Recipient Emails, comma separated)'),
+      'recipient@test.com'
+    );
+
+    const sendButton = screen.getByRole('button', { name: /Send Email/ });
+    await user.click(sendButton);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Template not found');
+    });
+
+    expect(mockedSendEmail).not.toHaveBeenCalled();
   });
 });

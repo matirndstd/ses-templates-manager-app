@@ -13,15 +13,10 @@ vi.mock('sonner', () => ({
   },
 }));
 
-// Mock SESv2Client and ListEmailTemplatesCommand
-vi.mock('@aws-sdk/client-sesv2', () => {
-  return {
-    SESv2Client: vi.fn().mockImplementation(() => ({
-      send: vi.fn().mockResolvedValue({}),
-    })),
-    ListEmailTemplatesCommand: vi.fn(),
-  };
-});
+// Mock validateS3Connection
+vi.mock('@/lib/aws-s3', () => ({
+  validateS3Connection: vi.fn().mockResolvedValue(true),
+}));
 
 const mockOnOpenChange = vi.fn();
 
@@ -41,10 +36,11 @@ describe('LoginModal', () => {
   it('renders correctly', () => {
     renderComponent();
 
-    expect(screen.getByText('Login to Amazon SES Manager')).toBeInTheDocument();
+    expect(screen.getByText('Login to SES Templates Manager')).toBeInTheDocument();
     expect(screen.getByLabelText('AWS Region')).toBeInTheDocument();
     expect(screen.getByLabelText('Access Key ID')).toBeInTheDocument();
     expect(screen.getByLabelText('Secret Access Key')).toBeInTheDocument();
+    expect(screen.getByLabelText('S3 Bucket Name')).toBeInTheDocument();
   });
 
   it('shows error if credentials are incomplete', async () => {
@@ -61,8 +57,32 @@ describe('LoginModal', () => {
     });
   });
 
+  it('shows error if S3 bucket name is missing', async () => {
+    const user = userEvent.setup();
+
+    renderComponent();
+
+    // Fill in AWS credentials but not bucket name
+    await user.click(
+      screen.getByRole('combobox', {
+        name: 'region',
+      })
+    );
+    await user.click(screen.getByRole('option', { name: 'us-east-1' }));
+    await user.type(screen.getByLabelText('Access Key ID'), 'mockKey');
+    await user.type(screen.getByLabelText('Secret Access Key'), 'mockSecret');
+
+    user.click(screen.getByText('Login'));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith(
+        'Please enter your S3 bucket name'
+      );
+    });
+  });
+
   it('logs in successfully with valid credentials', async () => {
-    const ses = await import('@aws-sdk/client-sesv2');
+    const s3 = await import('@/lib/aws-s3');
     const user = userEvent.setup();
 
     renderComponent();
@@ -80,25 +100,24 @@ describe('LoginModal', () => {
 
     await user.type(screen.getByLabelText('Access Key ID'), 'mockKey');
     await user.type(screen.getByLabelText('Secret Access Key'), 'mockSecret');
+    await user.type(screen.getByLabelText('S3 Bucket Name'), 'my-bucket');
 
     user.click(screen.getByText('Login'));
 
     await waitFor(() => {
-      expect(ses.SESv2Client).toHaveBeenCalled();
+      expect(s3.validateS3Connection).toHaveBeenCalled();
       expect(localStorage.getItem('awsCredentials')).toContain('mockKey');
+      expect(localStorage.getItem('awsCredentials')).toContain('my-bucket');
       expect(toast.success).toHaveBeenCalledWith('Successfully logged in');
       expect(mockOnOpenChange).toHaveBeenCalledWith(false);
     });
   });
 
   it('shows error on login failure', async () => {
-    const ses = await import('@aws-sdk/client-sesv2');
+    const s3 = await import('@/lib/aws-s3');
     const user = userEvent.setup();
-    // Force client.send to throw error
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (ses.SESv2Client as any).mockImplementation(() => ({
-      send: vi.fn().mockRejectedValue(new Error('Bad credentials')),
-    }));
+    // Force validateS3Connection to return false
+    vi.mocked(s3.validateS3Connection).mockResolvedValue(false);
 
     renderComponent();
 
@@ -111,12 +130,13 @@ describe('LoginModal', () => {
 
     await user.type(screen.getByLabelText('Access Key ID'), 'badKey');
     await user.type(screen.getByLabelText('Secret Access Key'), 'badSecret');
+    await user.type(screen.getByLabelText('S3 Bucket Name'), 'bad-bucket');
 
     user.click(screen.getByText('Login'));
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
-        'Login failed. Please check your credentials and try again.'
+        'Login failed. Please check your credentials, bucket name, and try again.'
       );
     });
   });

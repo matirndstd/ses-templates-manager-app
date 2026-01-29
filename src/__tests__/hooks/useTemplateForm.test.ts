@@ -3,13 +3,13 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useNavigate } from 'react-router-dom';
 import { useTemplateForm } from '@/hooks/useTemplateForm';
 import { useToast } from '@/components/ui/use-toast';
-import { createTemplate, getTemplateById, updateTemplate } from '@/lib/aws-ses';
+import { createTemplate, getTemplateById, updateTemplate } from '@/lib/aws-s3';
 import type { EmailTemplate } from '@/types';
 
 // Mock dependencies
 vi.mock('react-router-dom');
 vi.mock('@/components/ui/use-toast');
-vi.mock('@/lib/aws-ses');
+vi.mock('@/lib/aws-s3');
 
 const mockNavigate = vi.fn();
 const mockToast = vi.fn();

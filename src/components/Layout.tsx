@@ -45,7 +45,6 @@ const Layout: React.FC = () => {
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Email Templates', href: '/templates' },
-    { name: 'Contact Lists', href: '/contact-lists' },
   ];
 
   return (

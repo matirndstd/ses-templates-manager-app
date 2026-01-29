@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Save, Trash2, SendHorizontal } from 'lucide-react';
+import { ArrowLeft, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DeleteTemplateDialog from '@/components/email-template/DeleteTemplateDialog';
-import SendTestEmailDialog from '@/components/email-template/SendTestEmailDialog';
 import EmailPreview from '@/components/email-template/EmailPreview';
 import TemplateDetailsForm from '@/components/email-template/TemplateDetailsForm';
 import TemplateFormSkeleton from '@/components/TemplateFormSkeleton';
@@ -13,7 +11,6 @@ import { parseContent } from '@/lib/utils';
 const EmailTemplateForm: React.FC = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id') || undefined;
-  const [showSendEmailDialog, setShowSendEmailDialog] = useState(false);
 
   const {
     isEditing,
@@ -70,26 +67,14 @@ const EmailTemplateForm: React.FC = () => {
 
         <div className="flex items-center gap-2">
           {isEditing && (
-            <>
-              <Button
-                className="gap-0"
-                variant="secondary"
-                onClick={() => setShowSendEmailDialog(true)}
-                disabled={isSaving}
-              >
-                <SendHorizontal className="h-4 w-4 mr-2" />
-                Send Test Email
-              </Button>
-
-              <Button
-                variant="outline"
-                className="text-destructive gap-0"
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
-            </>
+            <Button
+              variant="outline"
+              className="text-destructive gap-0"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
           )}
         </div>
       </div>
@@ -149,22 +134,13 @@ const EmailTemplateForm: React.FC = () => {
       </div>
 
       {isEditing && (
-        <>
-          <DeleteTemplateDialog
-            isOpen={showDeleteDialog}
-            templateId={id}
-            templateName={parsedFormData.TemplateName || ''}
-            onClose={() => setShowDeleteDialog(false)}
-            onDeleted={handleDelete}
-          />
-
-          <SendTestEmailDialog
-            isOpen={showSendEmailDialog}
-            onClose={() => setShowSendEmailDialog(false)}
-            templateName={id}
-            dynamicFields={parsedFormData.dynamicFields}
-          />
-        </>
+        <DeleteTemplateDialog
+          isOpen={showDeleteDialog}
+          templateId={id}
+          templateName={parsedFormData.TemplateName || ''}
+          onClose={() => setShowDeleteDialog(false)}
+          onDeleted={handleDelete}
+        />
       )}
     </div>
   );

@@ -42,9 +42,6 @@ describe('Layout', () => {
     expect(
       screen.getByRole('link', { name: /email templates/i })
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: /contact lists/i })
-    ).toBeInTheDocument();
   });
 
   it('shows login button when not logged in', () => {

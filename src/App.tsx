@@ -9,8 +9,6 @@ import Login from './pages/Login';
 import Layout from '@/components/Layout';
 import EmailTemplateForm from '@/components/email-template/EmailTemplateForm';
 import EmailTemplateList from '@/components/email-template/EmailTemplateList';
-import ListContactList from '@/components/contact-list/ListContactList';
-import ContactListForm from '@/components/contact-list/ContactListForm';
 
 const queryClient = new QueryClient();
 
@@ -27,9 +25,6 @@ const App = () => (
             <Route path="/templates" element={<EmailTemplateList />} />
             <Route path="/templates/new" element={<EmailTemplateForm />} />
             <Route path="/templates/edit" element={<EmailTemplateForm />} />
-            <Route path="/contact-lists" element={<ListContactList />} />
-            <Route path="/contact-lists/new" element={<ContactListForm />} />
-            <Route path="/contact-lists/:name" element={<ContactListForm />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

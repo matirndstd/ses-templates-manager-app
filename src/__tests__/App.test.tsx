@@ -28,12 +28,6 @@ vi.mock('@/components/email-template/EmailTemplateList', () => ({
 vi.mock('@/components/email-template/EmailTemplateForm', () => ({
   default: () => <div>Email Template Form</div>,
 }));
-vi.mock('@/components/contact-list/ListContactList', () => ({
-  default: () => <div>Contact Lists</div>,
-}));
-vi.mock('@/components/contact-list/ContactListForm', () => ({
-  default: () => <div>Contact List Form</div>,
-}));
 
 vi.mock('@/components/ui/toaster', () => ({ Toaster: () => null }));
 vi.mock('@/components/ui/sonner', () => ({ Toaster: () => null }));
@@ -75,11 +69,5 @@ describe('App', () => {
     renderAtRoute('/templates/edit?id=some-template-id-123');
     expect(screen.getByText('Main Layout')).toBeInTheDocument();
     expect(screen.getByText('Email Template Form')).toBeInTheDocument();
-  });
-
-  it('should render the contact list form for the "/contact-lists/new" path', () => {
-    renderAtRoute('/contact-lists/new');
-    expect(screen.getByText('Main Layout')).toBeInTheDocument();
-    expect(screen.getByText('Contact List Form')).toBeInTheDocument();
   });
 });

@@ -23,10 +23,6 @@ vi.mock('@/components/email-template/DeleteTemplateDialog', () => ({
   default: ({ isOpen }: { isOpen: boolean }) =>
     isOpen ? <div>DeleteTemplateDialog</div> : null,
 }));
-vi.mock('@/components/email-template/SendTestEmailDialog', () => ({
-  default: ({ isOpen }: { isOpen: boolean }) =>
-    isOpen ? <div>SendTestEmailDialog</div> : null,
-}));
 vi.mock('@/components/email-template/EmailPreview', () => ({
   default: () => <div>EmailPreview</div>,
 }));
@@ -118,7 +114,6 @@ describe('EmailTemplateForm', () => {
       render(<EmailTemplateForm />);
       expect(screen.getByText('Create Template')).toBeInTheDocument();
       expect(screen.getByText('Save Template')).toBeInTheDocument();
-      expect(screen.queryByText('Send Test Email')).not.toBeInTheDocument();
       expect(screen.queryByText('Delete')).not.toBeInTheDocument();
     });
 
@@ -138,7 +133,6 @@ describe('EmailTemplateForm', () => {
       expect(
         screen.queryByText('DeleteTemplateDialog')
       ).not.toBeInTheDocument();
-      expect(screen.queryByText('SendTestEmailDialog')).not.toBeInTheDocument();
 
       const submitButton = screen.getByRole('button', {
         name: /save Template/i,
@@ -186,14 +180,7 @@ describe('EmailTemplateForm', () => {
     it('should render the edit template form', () => {
       render(<EmailTemplateForm />);
       expect(screen.getByText('Edit Template')).toBeInTheDocument();
-      expect(screen.getByText('Send Test Email')).toBeInTheDocument();
       expect(screen.getByText('Delete')).toBeInTheDocument();
-    });
-
-    it('should open the send test email dialog', () => {
-      render(<EmailTemplateForm />);
-      fireEvent.click(screen.getByText('Send Test Email'));
-      expect(screen.getByText('SendTestEmailDialog')).toBeInTheDocument();
     });
 
     it('should open the delete dialog', () => {

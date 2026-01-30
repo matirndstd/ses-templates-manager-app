@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { deleteTemplate } from '@/lib/aws-ses';
+import { deleteTemplate } from '@/lib/aws-s3';
 import { useToast } from '@/components/ui/use-toast';
 
 interface DeleteTemplateDialogProps {

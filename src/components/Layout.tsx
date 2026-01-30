@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { Mail, LogIn, LogOut, MoonStar, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -45,7 +45,6 @@ const Layout: React.FC = () => {
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Email Templates', href: '/templates' },
-    { name: 'Contact Lists', href: '/contact-lists' },
   ];
 
   return (

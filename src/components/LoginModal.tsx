@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ListEmailTemplatesCommand, SESv2Client } from '@aws-sdk/client-sesv2';
+import { toast } from 'sonner';
+import { validateS3Connection } from '@/lib/aws-s3';
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -33,6 +33,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
     accessKeyId: '',
     secretAccessKey: '',
     region: '',
+    s3BucketName: '',
+    s3FolderPrefix: ''
   });
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -46,21 +48,25 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
       toast.error('Please enter your AWS credentials');
       return;
     }
-
+    if (!credentials.s3BucketName) {
+      toast.error('Please enter your S3 bucket name');
+      return;
+    }
     setIsLoggingIn(true);
 
     try {
-      // Verify credentials by making a test API call
-      const client = new SESv2Client({
-        region: credentials.region,
-        credentials: {
-          accessKeyId: credentials.accessKeyId,
-          secretAccessKey: credentials.secretAccessKey,
-        },
-      });
+      // Verify credentials by testing S3 bucket connection
+      const isValid = await validateS3Connection(
+        credentials.region,
+        credentials.accessKeyId,
+        credentials.secretAccessKey,
+        credentials.s3BucketName,
+        credentials.s3FolderPrefix
+      );
 
-      // Try to list templates to verify credentials work
-      await client.send(new ListEmailTemplatesCommand({}));
+      if (!isValid) {
+        throw new Error('Invalid credentials or bucket access');
+      }
 
       // Store in localStorage (not secure for real AWS credentials!)
       localStorage.setItem('awsCredentials', JSON.stringify(credentials));
@@ -70,7 +76,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
       navigate('/');
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Login failed. Please check your credentials and try again.');
+      toast.error('Login failed. Please check your credentials, bucket name, and try again.');
     } finally {
       setIsLoggingIn(false);
     }
@@ -80,9 +86,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Login to Amazon SES Manager</DialogTitle>
+          <DialogTitle>Login to SES Templates Manager</DialogTitle>
           <DialogDescription>
-            Enter your AWS credentials to manage SES templates.
+            Enter your AWS credentials and S3 bucket name to manage email templates.
           </DialogDescription>
         </DialogHeader>
 
@@ -96,7 +102,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
                 setCredentials((prev) => ({ ...prev, region: value }));
               }}
             >
-              <SelectTrigger aria-label="region">
+              <SelectTrigger
+                id="region"
+                aria-label="region"
+                data-testid="select-region"
+              >
                 <SelectValue placeholder="Select a region" />
               </SelectTrigger>
               <SelectContent>
@@ -126,6 +136,28 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onOpenChange }) => {
               name="secretAccessKey"
               type="password"
               value={credentials.secretAccessKey}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="s3BucketName">S3 Bucket Name</Label>
+            <Input
+              id="s3BucketName"
+              name="s3BucketName"
+              placeholder="my-ses-templates-bucket"
+              value={credentials.s3BucketName}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="s3FolderPrefix">S3 Folder Prefix</Label>
+            <Input
+              id="s3FolderPrefix"
+              name="s3FolderPrefix"
+              placeholder="root_folder/"
+              value={credentials.s3FolderPrefix}
               onChange={handleInputChange}
             />
           </div>

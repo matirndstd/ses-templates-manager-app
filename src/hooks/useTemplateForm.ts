@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import z from 'zod/v4';
 import { EmailTemplate } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
-import { createTemplate, getTemplateById, updateTemplate } from '@/lib/aws-ses';
+import { createTemplate, getTemplateById, updateTemplate } from '@/lib/aws-s3';
 import { CreateTemplateSchema } from '@/schemas';
 
 interface UseTemplateFormProps {

@@ -9,7 +9,7 @@ export function parseContent(content: string) {
   if (!content) return '';
   // Parse unicode escaped characters
   let retVal = content.replace(/"/g, '\\"').replace(/(?:\r\n|\r|\n)/g, '\\n');
-  retVal = retVal.replace(/\\u([\d\w]{4})/gi, function (match, grp) {
+  retVal = retVal.replace(/\\u([0-9a-f]{4})/gi, function (match, grp) {
     return String.fromCharCode(parseInt(grp, 16));
   });
   retVal = retVal.replace(/\\n/g, '\n');
@@ -31,12 +31,14 @@ export function extractTextFromHTML(htmlString: string): string {
   const title = doc.title || '';
   const bodyText = doc.body?.textContent || '';
 
-  // Combine, normalize whitespace, and remove symbols/emojis
-  const fullText = `${title} ${bodyText}`.replace(/\s+/g, ' ').trim();
+  // Combine title and body text
+  const fullText = `${title} ${bodyText}`;
 
-  // Remove emojis and symbols (based on Unicode ranges)
-  return fullText.replace(
-    /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
-    ''
-  );
+  // 1. Remove emojis.
+  // 2. Collapse any resulting multiple spaces into a single space.
+  // 3. Trim whitespace from the ends.
+  return fullText
+    .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }

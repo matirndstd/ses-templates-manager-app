@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Edit, MoreVertical, Trash2 } from 'lucide-react';
 import {
@@ -28,7 +28,7 @@ const EmailTemplateCard: React.FC<EmailTemplateCardProps> = ({
   template,
   onDeleted,
 }) => {
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -63,14 +63,14 @@ const EmailTemplateCard: React.FC<EmailTemplateCardProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link to={`/templates/${parsedTemplate.id}`}>
+                <DropdownMenuItem className="cursor-pointer" asChild>
+                  <Link to={`/templates/edit?id=${parsedTemplate.id}`}>
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:text-destructive cursor-pointer"
                   onClick={() => setShowDeleteDialog(true)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
@@ -80,7 +80,7 @@ const EmailTemplateCard: React.FC<EmailTemplateCardProps> = ({
             </DropdownMenu>
           </div>
         </CardHeader>
-        <Link to={`/templates/${parsedTemplate.id}`}>
+        <Link to={`/templates/edit?id=${parsedTemplate.id}`}>
           <CardContent className="pb-2">
             <p
               className="text-sm text-muted-foreground mb-2 truncate"

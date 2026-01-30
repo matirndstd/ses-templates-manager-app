@@ -1,18 +1,16 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { ArrowLeft, Save, Trash2, SendHorizontal } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import DeleteTemplateDialog from './DeleteTemplateDialog';
-import SendTestEmailDialog from './SendTestEmailDialog';
-import EmailPreview from './EmailPreview';
-import TemplateDetailsForm from './TemplateDetailsForm';
-import TemplateFormSkeleton from '../TemplateFormSkeleton';
+import DeleteTemplateDialog from '@/components/email-template/DeleteTemplateDialog';
+import EmailPreview from '@/components/email-template/EmailPreview';
+import TemplateDetailsForm from '@/components/email-template/TemplateDetailsForm';
+import TemplateFormSkeleton from '@/components/TemplateFormSkeleton';
 import { useTemplateForm } from '@/hooks/useTemplateForm';
 import { parseContent } from '@/lib/utils';
 
 const EmailTemplateForm: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [showSendEmailDialog, setShowSendEmailDialog] = React.useState(false);
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get('id') || undefined;
 
   const {
     isEditing,
@@ -69,25 +67,14 @@ const EmailTemplateForm: React.FC = () => {
 
         <div className="flex items-center gap-2">
           {isEditing && (
-            <>
-              <Button
-                variant="secondary"
-                onClick={() => setShowSendEmailDialog(true)}
-                disabled={isSaving}
-              >
-                <SendHorizontal className="h-4 w-4 mr-2" />
-                Send Test Email
-              </Button>
-
-              <Button
-                variant="outline"
-                className="text-destructive"
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
-            </>
+            <Button
+              variant="outline"
+              className="text-destructive gap-0"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
           )}
         </div>
       </div>
@@ -97,9 +84,10 @@ const EmailTemplateForm: React.FC = () => {
           <TemplateDetailsForm
             formData={parsedFormData}
             errors={errors}
+            tab={tab}
+            isEditing={isEditing}
             handleChange={handleChange}
             handleHtmlChange={handleHtmlChange}
-            tab={tab}
             setTab={setTab}
           />
 
@@ -107,13 +95,15 @@ const EmailTemplateForm: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              className="mr-2"
+              size="lg"
+              className="mr-2 px-6"
               onClick={() => navigate('/templates')}
               disabled={isSaving}
             >
               Cancel
             </Button>
             <Button
+              className="gap-0"
               type="submit"
               disabled={
                 isSaving ||
@@ -144,22 +134,13 @@ const EmailTemplateForm: React.FC = () => {
       </div>
 
       {isEditing && (
-        <>
-          <DeleteTemplateDialog
-            isOpen={showDeleteDialog}
-            templateId={id!}
-            templateName={parsedFormData.TemplateName || ''}
-            onClose={() => setShowDeleteDialog(false)}
-            onDeleted={handleDelete}
-          />
-
-          <SendTestEmailDialog
-            isOpen={showSendEmailDialog}
-            onClose={() => setShowSendEmailDialog(false)}
-            templateName={id!}
-            dynamicFields={parsedFormData.dynamicFields}
-          />
-        </>
+        <DeleteTemplateDialog
+          isOpen={showDeleteDialog}
+          templateId={id}
+          templateName={parsedFormData.TemplateName || ''}
+          onClose={() => setShowDeleteDialog(false)}
+          onDeleted={handleDelete}
+        />
       )}
     </div>
   );

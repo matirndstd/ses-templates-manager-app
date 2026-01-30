@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Eye, EyeOff, FileText, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff, FileText, RefreshCw } from 'lucide-react';
 import { EmailTemplate } from '@/types';
 
 interface EmailPreviewProps {

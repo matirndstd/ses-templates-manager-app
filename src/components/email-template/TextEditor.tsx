@@ -1,6 +1,6 @@
-import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 
 interface TextEditorProps {
   value: string;
@@ -19,12 +19,13 @@ const TextEditor: React.FC<TextEditorProps> = ({
     <div className="space-y-2">
       <div className="flex flex items-center justify-between mt-3">
         <Label htmlFor="Text">Text Content</Label>
-        <p
-          className="text-sm font-medium text-blue-500 hover:underline cursor-pointer"
+        <Button
+          className="p-0"
+          variant="link"
           onClick={generateContent}
         >
           Generate content
-        </p>
+        </Button>
       </div>
       <Textarea
         id="Text"
